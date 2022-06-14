@@ -215,6 +215,29 @@ func (s *Session) Describe(urlStr string) (*Response, error) {
 	return ReadResponse(s.conn)
 }
 
+func (s *Session) GetParameter(urlStr string) (*Response, error) {
+	req, err := NewRequest(GET_PARAMETER, urlStr, s.nextCSeq(), nil)
+	if err != nil {
+		panic(err)
+	}
+
+	req.Header.Add("Session", "1234")
+	req.Header.Add("Content-Length", "15")
+
+	if s.conn == nil {
+		s.conn, err = net.Dial("tcp", req.URL.Host)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	_, err = io.WriteString(s.conn, req.String())
+	if err != nil {
+		return nil, err
+	}
+	return ReadResponse(s.conn)
+}
+
 func (s *Session) Options(urlStr string) (*Response, error) {
 	req, err := NewRequest(OPTIONS, urlStr, s.nextCSeq(), nil)
 	if err != nil {
